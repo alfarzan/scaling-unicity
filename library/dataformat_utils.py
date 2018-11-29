@@ -14,7 +14,7 @@ import datetime
 from collections import defaultdict
 
 
-def get_u2p(rootdir, start_date='2007-01-15', end_date='2007-04-15',
+def get_u2p(rootdir, start_date, end_date,
             max_pop=False, uselist=False):
     """
     This function loads up pre-processed pickled arrays in pre-specified date
@@ -30,6 +30,8 @@ def get_u2p(rootdir, start_date='2007-01-15', end_date='2007-04-15',
     NOTE: noramlly get_u2p has default values but here I have removed them. You
     should put them back for your specific application to ensure every other
     file runs smoothly.
+    
+    The format of the dates must be YYYY-MM-DD as one string. 
     -------
     AF
     """

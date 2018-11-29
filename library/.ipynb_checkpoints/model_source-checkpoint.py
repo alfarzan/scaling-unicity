@@ -1,3 +1,14 @@
+"""
+This file contains the source code for generating synthetic trajectories
+according to the model. It includes the graph sub-sampling code and two
+versions of the code with generates the trajectories by random sampling.
+These two are equivalent in practice but differ in time and memory complexity.
+It also contains code which subsamples the graph many times and stores all the
+subsamples in a numpy array. This is done again for reducing complexity.
+
+Author: Ali Farzanehfar (AF)
+"""
+
 import numpy as np
 import random as rnd
 
@@ -12,7 +23,11 @@ def gen_cluster(size, ana, ana_keys):
 
     Outputs:
         - ndarray of ints which consitutes a connected path of fixed size on
-          the antenna network"""
+          the antenna network
+
+    -------
+    AF
+    """
     start = rnd.sample(ana_keys, 1)[0]
     current_ant = start
     visited = {current_ant}
@@ -40,32 +55,16 @@ def create_cluster_array(nusers, size, ana):
         - ana: dict, output of get_geo
 
     Outputs:
-        - ndarray of shape (nusers, size)"""
+        - ndarray of shape (nusers, size)
+
+    -------
+    AF
+    """
     antlist = list(ana.keys())
     arr = np.zeros((nusers, size), dtype=np.int32)
     for i in range(nusers):
         arr[i] = gen_cluster(size, ana, antlist)
     return arr
-
-
-def resampler_non_sparse_matrix(nusers, cluster_array, input_dists, ana):
-    """Generates the synthetic data and stores data in dictionary.
-    See resampler docstring for more info."""
-    assert len(cluster_array) >= nusers
-    # unpacking the input distributions
-    act, fbar, time = input_dists
-    n = len(ana)
-    # antlist = list(ana.keys())
-    hrs = np.arange(len(time))
-    acts = np.arange(cluster_array.shape[1], cluster_array.shape[1] + len(act))
-    u2p = {}
-    for user in range(nusers):
-        a = np.random.choice(acts, p=act)
-        t = np.random.choice(hrs, size=a, p=time, replace=False)
-        s = cluster_array[user]
-        x = np.random.choice(s, a, p=fbar)
-        u2p[user] = t * n + x
-    return u2p
 
 
 def resampler(nusers, cluster_array, inputs, ana):
@@ -88,12 +87,14 @@ def resampler(nusers, cluster_array, inputs, ana):
         - cols: ndarray, indicates column indices of sparse matrix
         - rand_acts: ndarray, contains activity values for all users present
         - shape: 2-tuples, contains shape of sparse matrix
+
+    -------
+    AF
     """
     assert len(cluster_array) >= nusers
     # unpacking the input distributions
     act, fbar, time = inputs
     n = len(ana)
-    # antlist = list(ana.keys())
     hrs = np.arange(len(time), dtype=np.int32)
     acts = np.arange(cluster_array.shape[1],
                      cluster_array.shape[1] + len(act), dtype=np.int32)
@@ -116,3 +117,26 @@ def resampler(nusers, cluster_array, inputs, ana):
         rows[currind: currind + a] = user * rows[currind: currind + a]
         currind += a
     return data, rows, cols, shape, rand_acts
+
+
+def resampler_non_sparse_matrix(nusers, cluster_array, input_dists, ana):
+    """Generates the synthetic data and stores data in dictionary.
+    See resampler docstring for more info.
+
+    -------
+    AF
+    """
+    assert len(cluster_array) >= nusers
+    # unpacking the input distributions
+    act, fbar, time = input_dists
+    n = len(ana)
+    hrs = np.arange(len(time))
+    acts = np.arange(cluster_array.shape[1], cluster_array.shape[1] + len(act))
+    u2p = {}
+    for user in range(nusers):
+        a = np.random.choice(acts, p=act)
+        t = np.random.choice(hrs, size=a, p=time, replace=False)
+        s = cluster_array[user]
+        x = np.random.choice(s, a, p=fbar)
+        u2p[user] = t * n + x
+    return u2p

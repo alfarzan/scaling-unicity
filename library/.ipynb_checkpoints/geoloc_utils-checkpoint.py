@@ -1,3 +1,11 @@
+"""
+This file provides two funcitons used for generating the correct graph from a
+series of geographic locations corresponding to antennas or any other points of
+interest.
+
+Author: Ali Farzanehfar
+"""
+
 import numpy as np
 import scipy.spatial as sp
 import pandas as pd
@@ -13,26 +21,34 @@ def find_neighbors(pindex, triang):
         - triang: scipy.spatial.Delaunay object
 
     Outputs:
-        - ndarray of inidces of points which neighbour pindex"""
+        - ndarray of inidces of points which neighbour pindex
+    -------
+    AF
+    """
     a = triang.vertex_neighbor_vertices[1]
     b = triang.vertex_neighbor_vertices[0][pindex]
     c = triang.vertex_neighbor_vertices[0][pindex + 1]
     return a[b:c]
 
-def get_geo(inputdir='../inputs/', fname='PT_processed.txt', pandas_sep=' '):
+
+def get_geo(inputdir, fname, pandas_sep):
     """This function reads lat and long information from input files and returns
     a dictionary linking antennas to neighbouring antennas.
 
     Inputs:
         - inputdir: str, indicates path of where input files are located
         - fname: str, name of file containing antenna ids, lat and long
-        - pandas_sep: str, the seperator for the fields inside elements of fname
+        - pandas_sep: str, the seperator for the fields inside elements of
+                      fname
 
     Outputs:
         - dict with keys being integers which enumerate antennas in the order
           they appear in fname. Values are sets of antenna ids which reside in
           the towers which neighbour the tower of the antenna which is the
-          dictionary entry key."""
+          dictionary entry key.
+    -------
+    AF
+    """
     pdf = pd.read_csv(inputdir + fname,
                       names=['antid', 'lat', 'long'], sep=pandas_sep)
     pdf['antid'] = np.int16(pdf['antid'])

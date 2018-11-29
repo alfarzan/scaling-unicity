@@ -1,6 +1,8 @@
 """
 This script runs the unicity model using various different
 distribution parameter values.
+
+Author: Ali Farzanehfar
 """
 
 from unicity_utils import begin_unicity_series
@@ -27,7 +29,7 @@ def worker(params):
     df = begin_unicity_series(*params)
     nmils = params[0] // 1e6
     df.to_csv(
-        '../results/gridsearch_New_Cluster_{:.0f}M/iter_{}.csv'.format(nmils, params[7]))
+        '../results/gridsearch_{:.0f}M/iter_{}.csv'.format(nmils, params[7]))
 
 
 def instantiate_pool(allpars, max_size, step, sample_size, pl, cs, sgs,
@@ -43,7 +45,7 @@ def instantiate_pool(allpars, max_size, step, sample_size, pl, cs, sgs,
     print('cluster_size:  {}'.format(cs))
     print('subgraph size: {}'.format(sgs))
     nmils = max_size // 1e6
-    directory = '../results/gridsearch_New_Cluster_{:.0f}M/'.format(nmils)
+    directory = '../results/gridsearch_{:.0f}M/'.format(nmils)
     if not os.path.exists(directory):
         os.makedirs(directory)
 

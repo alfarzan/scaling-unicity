@@ -1,0 +1,8 @@
+This file must contain the antenna locations in the following format:
+
+antenna_id latitude longitude
+
+=================================
+Example:
+
+123 4.9837 -9.3827

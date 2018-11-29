@@ -1,3 +1,12 @@
+"""
+This file computes the range of parameters for the beta and power law functions
+according to the earth movers' distance (EMD) of the resulting distributions
+from the empirical distribution.
+
+Author: Ali Farzanehfar
+"""
+
+
 import numpy as np
 import scipy.optimize as so
 import scipy.stats as scp
@@ -6,6 +15,22 @@ from tqdm import tqdm as tq
 
 
 def gen_freq_params(emthresh=0.7, nvals=8, sgs=10):
+    """
+    This function computes the range of frequency parameters to use in order to
+    maintain a distance of less than 0.7 EMD compared to the maximum possible
+    distance given the functional form of a power law.
+
+    Inputs:
+        - emthresh: float, the upper limit on the most divergent distributions
+                    from the emprical fit as a fraction of the maximum distance
+        - nvals: int, number of frequency distritbution parameters to return
+        - sgs: int, size of the distribution fit (important for normalisation)
+
+    Outputs:
+        - freq_params: list, a list of the parameters for the powerlaw fit
+    -------
+    AF
+    """
 
     fbar = np.load('../inputs/frequency.npy')
     fbar = fbar[:sgs] / np.sum(fbar[:sgs])
@@ -42,9 +67,14 @@ def gen_freq_params(emthresh=0.7, nvals=8, sgs=10):
 
 
 def gen_act_params(emthresh=0.7, nvals=9):
+    """
+    This function does the same as the above function for the activity
+    distribution and so the docstring is ommited.
+    -------
+    AF
+    """
 
     act = np.load('../inputs/activity.npy')
-    # act = a / a.sum()
     act = act / act.max()
     x = np.linspace(0, 1, len(act))
 
@@ -80,7 +110,6 @@ def gen_act_params(emthresh=0.7, nvals=9):
         for bi in b_inter:
             curr_a = activity_fit(x, ai, bi, 1)
             const = 1 / np.sum(curr_a)
-    #         print(const)
             em.append(scp.wasserstein_distance(curr_a * const, actfit))
             avals.append(ai)
             bvals.append(bi)
@@ -110,6 +139,23 @@ def gen_act_params(emthresh=0.7, nvals=9):
 
 
 def gen_input_dist_params(ef, nf, ea, na):
+    """
+    A wrapper for the above two functions to generate the parameters given a
+    certain threshold and a certain number of parameters for both the activity
+    and the frequency distributions.
+
+    Inputs:
+        - ef: float, threshold for frequency (between 0 and 1)
+        - ea: float, threshold for activity (between 0 and 1)
+        - na: int, number of activity distributions to be generated
+        - nf: int, number of frequency distributions to be generated
+
+    Outputs:
+        - combos: list, containing all the possible instatiations fo the
+                  frequency and activity distributions generated.
+    -------
+    AF
+    """
     f = gen_freq_params(ef, nf)
     a = gen_act_params(ea, na)
     combos = []
@@ -120,5 +166,13 @@ def gen_input_dist_params(ef, nf, ea, na):
 
 
 def wrapped_gen_dist(em, nf, na):
+    """
+    A wrapper for the gen_input_dist_params function including a check to make
+    sure the number of activity parameters checked is a full square so that
+    each of the two beta function parameters is checked for an equal number of
+    different values.
+    -------
+    AF
+    """
     assert pow(na, 0.5) % 1 == 0  # making sure na is a full square
     return gen_input_dist_params(em, nf, em, na)

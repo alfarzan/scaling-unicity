@@ -1,6 +1,8 @@
 """
-This script runs the unicity model using various different
-distribution parameter values.
+This script computes the unicity values using the model up to a specified
+population size
+
+Author: Ali Farzanehfar
 """
 
 from unicity_utils import begin_unicity_series
@@ -20,4 +22,4 @@ inputs = get_input_dists()
 df = begin_unicity_series(max_size, step, sample_size,
                           inputs, pl, cs, sgs, seed, autosave=True)
 
-df.to_csv('../results/60M_model_New_Cluster.csv')
+df.to_csv('../results/60M_model.csv')
